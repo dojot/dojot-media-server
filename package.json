@@ -1,0 +1,20 @@
+{
+  "name": "@dojot/media-server",
+  "version": "0.0.1",
+  "description": "Uses kurento to transform RSTP stream into WebRTC",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Rafael Augusto Scaraficci",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@dojot/dojot-module": "0.0.1-alpha.6",
+    "@dojot/dojot-module-logger": "0.0.1-alpha.1",
+    "kurento-client": "Kurento/kurento-client-js",
+    "express": "^4.16.4",
+    "axios": "^0.18.0"
+  }
+}

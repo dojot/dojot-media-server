@@ -1,0 +1,68 @@
+Sample Device Configuration
+----------------------------
+
+curl -X POST http://127.0.0.1:8000/auth -H 'Content-Type:application/json' -d '{"username": "admin", "passwd" : "admin"}'
+
+curl -X POST http://127.0.0.1:8000/template \
+-H "Authorization: Bearer ${JWT}" \
+-H 'Content-Type:application/json' \
+-d '{"label": "Camera", 
+     "attrs": [
+                {"label": "protocol", "type": "meta", 
+                 "value_type": "string", "static_value": "rtsp"},
+                 {"label": "rtsp_url", "type": "static",
+                 "value_type": "string", 
+                 "static_value": "rtsp://"},
+                 {"label": "location", "type": "static",
+                 "value_type": "geo:point", "static_value": "-22.816121, -47.045105"},
+                 {"label": "serial_number", "type": "static",
+                 "value_type": "string", "static_value": "ABCDEF1234"},
+                 {"label": "alarmID", "type": "dynamic", "value_type": "string"}
+               ]}'
+
+curl -X POST http://127.0.0.1:8000/device \
+-H "Authorization: Bearer $JWT" \
+-H 'Content-Type:application/json' \
+-d '{"label": "CameraX", "templates": ["1"]}'
+
+
+Generate dojot Media Server Container
+---------------------------------------
+
+docker build -t dojot/media-server .
+
+
+Add dojot Mediar Server to docker-compose
+------------------------------------------
+  dojot-media-server:
+    restart: always
+    image: dojot/media-server:latest
+    ports:
+      - 8081:80
+    depends_on:
+      - kurento
+
+  kurento:
+    restart: always
+    image: kurento-docker-dev
+    ports:
+      - 8888:8888
+    environment:
+      GST_DEBUG: 'Kurento*:5
+
+Configure Kong API Gateway (kong.config.sh)
+-------------------------------------------
+# Dojot Media Server
+(curl -o /dev/null ${kong}/apis -sS -X POST \
+    --header "Content-Type: application/json" \
+    -d @- ) <<PAYLOAD
+{
+     "name": "dojot-media-server-endpoints",
+     "uris": "/media-server",
+     "strip_uri": false,
+     "upstream_url": "http://dojot-media-server:80"
+ }
+PAYLOAD
+authConfig "dojot-media-server-endpoints"
+
+
